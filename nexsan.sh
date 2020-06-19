@@ -6,7 +6,7 @@ set TARGET_PASSWORD [lindex $argv 2]
 set TARGET_COMMAND [lindex $argv 3]
 
 log_user 0
-spawn  nc 100.64.40.58 44844
+spawn  nc $TARGET_HOSTIP 44844
 expect "220"
 send "USER $TARGET_USERNAME\n"
 expect "331 User OK, need password"
