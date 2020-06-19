@@ -10,3 +10,11 @@ place nexsan.sh in you external scripts folder as defined in the zabbix configur
 
 import the values maps 1st 
 import the template
+
+attach the tamplate to a host and set macros
+{$USERNAME}
+{$PASSWORD}
+
+and it should all start working.
+
+enjoy.
