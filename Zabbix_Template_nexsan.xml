@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-06-19T17:06:32Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Nexsan Storage</template>
+            <name>Template Nexsan Storage</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Nexsan Administration</name>
+                </application>
+                <application>
+                    <name>Nexsan Controller</name>
+                </application>
+                <application>
+                    <name>Nexsan Drives</name>
+                </application>
+                <application>
+                    <name>Nexsan Volumes</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Nexsan Admin port</name>
+                    <type>SIMPLE</type>
+                    <key>net.tcp.service[tcp,,44844]</key>
+                    <applications>
+                        <application>
+                            <name>Nexsan Administration</name>
+                        </application>
+                    </applications>
+                    <valuemap>
+                        <name>Service state</name>
+                    </valuemap>
+                </item>
+                <item>
+                    <name>Check Controller</name>
+                    <type>EXTERNAL</type>
+                    <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                    <delay>5m</delay>
+                    <history>0</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Nexsan Administration</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>return value.match(/^CONTROLLER.*/gmi);</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>&quot;
+</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>,CONTROLLER
+\nCONTROLLER</params>
+                        </step>
+                        <step>
+                            <type>CSV_TO_JSON</type>
+                            <params>:
+
+0</params>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>Check Drives</name>
+                    <type>EXTERNAL</type>
+                    <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                    <delay>5m</delay>
+                    <history>0</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Nexsan Administration</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>return value.match(/^DRIVE.*/gmi);</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>&quot;
+</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>,DRIVE
+\nDRIVE</params>
+                        </step>
+                        <step>
+                            <type>CSV_TO_JSON</type>
+                            <params>:
+
+0</params>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>Check Volumes</name>
+                    <type>EXTERNAL</type>
+                    <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;VOLUME&quot;]</key>
+                    <delay>5m</delay>
+                    <history>0</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Nexsan Administration</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>return value.match(/^VOLUME.*/gmi);</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>&quot;
+</params>
+                        </step>
+                        <step>
+                            <type>STR_REPLACE</type>
+                            <params>,VOLUME
+\nVOLUME</params>
+                        </step>
+                        <step>
+                            <type>CSV_TO_JSON</type>
+                            <params>:
+
+0</params>
+                        </step>
+                    </preprocessing>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Discovery Controllers</name>
+                    <type>DEPENDENT</type>
+                    <key>discovery.controllers</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Controller {#CONTROLLER_NUMBER} Management IP</name>
+                            <type>DEPENDENT</type>
+                            <key>control.ip[{#CONTROLLER_NUMBER}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Controller</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 =={#CONTROLLER_NUMBER})].5</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>([A-Fa-f0-9.:])+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Controller {#CONTROLLER_NUMBER} Serial</name>
+                            <type>DEPENDENT</type>
+                            <key>control.serial[{#CONTROLLER_NUMBER}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Controller</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 =={#CONTROLLER_NUMBER})].4</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Controller {#CONTROLLER_NUMBER} Status</name>
+                            <type>DEPENDENT</type>
+                            <key>control.status[{#CONTROLLER_NUMBER}]</key>
+                            <delay>0</delay>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Controller</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>Nexsan_controlller_status</name>
+                            </valuemap>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 =={#CONTROLLER_NUMBER})].3</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0:HEALTHY=1:FAULT=2</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(HEALTHY|FAULT)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Controller {#CONTROLLER_NUMBER} uptime</name>
+                            <type>DEPENDENT</type>
+                            <key>control.uptime[{#CONTROLLER_NUMBER}]</key>
+                            <delay>0</delay>
+                            <units>uptime</units>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Controller</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 =={#CONTROLLER_NUMBER})].7</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:digit:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;CONTROLLER&quot;]</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#CONTROLLER_NUMBER}</lld_macro>
+                            <path>$.2</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Discovery Drives</name>
+                    <type>DEPENDENT</type>
+                    <key>discovery.drives</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} Firmware</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.fw[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].15</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} Model</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.model[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].14</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} Serial</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.serial[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].4</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} Size</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.size[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <units>iB</units>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].5</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:digit:]]+
+\0</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} status</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.status[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>nexsan_status</name>
+                            </valuemap>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].3</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alnum:]]+
+\0:OK=1:UNUSED=2:SPARE=3:FAILED=4</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(OK|UNUSED|SPARE|FAILED)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last(,2)}=4</expression>
+                                    <name>{#DRIVE_LABEL} Failed</name>
+                                    <priority>HIGH</priority>
+                                    <description>the disk in {#DRIVE_LABEL} has failed and needs replacing.</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DRIVE_LABEL} Type</name>
+                            <type>DEPENDENT</type>
+                            <key>drive.type[{#DRIVE_NUMBER}]</key>
+                            <delay>0</delay>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Drives</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>nexsan_type</name>
+                            </valuemap>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.2 == {#DRIVE_NUMBER})].7</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>[[:alpha:]]+
+\0:SAS=1:SATA=2:SSD=3</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(SAS|SATA|SSD)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Template Nexsan Storage:drive.type[{#DRIVE_NUMBER}].change()}=1 or {Template Nexsan Storage:drive.model[{#DRIVE_NUMBER}].change()}=1</expression>
+                            <name>{#DRIVE_LABEL} Changed</name>
+                            <priority>AVERAGE</priority>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <master_item>
+                        <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;DRIVE&quot;]</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#DRIVE_LABEL}</lld_macro>
+                            <path>$.11</path>
+                        </lld_macro_path>
+                        <lld_macro_path>
+                            <lld_macro>{#DRIVE_NUMBER}</lld_macro>
+                            <path>$.2</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Discovery Volumes</name>
+                    <type>DEPENDENT</type>
+                    <key>discovery.volumes</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>status {#VOLUME_NAME}</name>
+                            <type>DEPENDENT</type>
+                            <key>volume.status[{#VOLUME_NAME}]</key>
+                            <delay>0</delay>
+                            <applications>
+                                <application>
+                                    <name>Nexsan Volumes</name>
+                                </application>
+                            </applications>
+                            <valuemap>
+                                <name>nexsan_volume_status</name>
+                            </valuemap>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.[?(@.12 == &quot;{#VOLUME_NAME}&quot;)].3</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>([A-Za-z1-9_-])+
+\0:HEALTHY=1:REBUILDING=2:INIT=3:CRITICAL=5:FAILED=6:RESTORING=4</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(HEALTHY|REBUILDING|INIT|RESTORING|FAILED|CRITICAL)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;VOLUME&quot;]</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last(5m)}&lt;&gt;1</expression>
+                                    <name>Volume {#VOLUME_NAME} isn't healthy</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>nexsan.sh[&quot;{HOST.CONN}&quot;,&quot;{$USERNAME}&quot;,&quot;{$PASSWORD}&quot;,&quot;VOLUME&quot;]</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#VOLUME_NAME}</lld_macro>
+                            <path>$.12</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$PASSWORD}</macro>
+                </macro>
+                <macro>
+                    <macro>{$USERNAME}</macro>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <value_maps>
+        <value_map>
+            <name>Nexsan_controlller_status</name>
+            <mappings>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>ok</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>faulty</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+        <value_map>
+            <name>nexsan_status</name>
+            <mappings>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>OK</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>UNUSED</newvalue>
+                </mapping>
+                <mapping>
+                    <value>3</value>
+                    <newvalue>SPARE</newvalue>
+                </mapping>
+                <mapping>
+                    <value>4</value>
+                    <newvalue>FAILED</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+        <value_map>
+            <name>nexsan_type</name>
+            <mappings>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>SAS</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>SATA</newvalue>
+                </mapping>
+                <mapping>
+                    <value>3</value>
+                    <newvalue>SSD</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+        <value_map>
+            <name>nexsan_volume_status</name>
+            <mappings>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>OK</newvalue>
+                </mapping>
+                <mapping>
+                    <value>2</value>
+                    <newvalue>Rebuilding</newvalue>
+                </mapping>
+                <mapping>
+                    <value>3</value>
+                    <newvalue>Init</newvalue>
+                </mapping>
+                <mapping>
+                    <value>4</value>
+                    <newvalue>Restoring</newvalue>
+                </mapping>
+                <mapping>
+                    <value>5</value>
+                    <newvalue>Critical</newvalue>
+                </mapping>
+                <mapping>
+                    <value>6</value>
+                    <newvalue>Failed</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+        <value_map>
+            <name>Service state</name>
+            <mappings>
+                <mapping>
+                    <value>0</value>
+                    <newvalue>Down</newvalue>
+                </mapping>
+                <mapping>
+                    <value>1</value>
+                    <newvalue>Up</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
+</zabbix_export>
