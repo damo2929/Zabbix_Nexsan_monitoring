@@ -1,8 +1,8 @@
 # Zabbix_Nexsan_monitoring
 this is monitoring for Nexsan storage systems using the management API.
 
-Nexsan provide and API to interactive With the storage array and as such we are going to use that API to provide monitoring.  
-Because the API is a text based API on a non standard protocol we use I'd expect scripts to provide the logging functionality and the command issues needed to interact .
+Nexsan provide an API to interactive With the storage array and as such we are going to use that API to provide monitoring.  
+Because the API is a text based API on a non standard protocol we use an expect script to provide the communication functionality and the command issues needed to interact .
 
 Require the following pass to it to operate the script
 *	IP address 
@@ -10,7 +10,7 @@ Require the following pass to it to operate the script
 *	Password 
 *	monitored subsystem
 
-This will provide a colon separated list of results we can use after some processing is it Json data set.  
+This will provide a colon separated list of results we can use after some processing to convert it to a Json data set.  
 This data set can then be used by low level discovery to create monitoring items as well as provide the data needed by those monitoring items.  To clean up the data set ee need to run a regular expression to filter lines beginning with the monitored subsystem we are looking for this will filter off control characters and information that whould cause problems with converting the dataset into json format which is the next step of the processing.  
 
 
