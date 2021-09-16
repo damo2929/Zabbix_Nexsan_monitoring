@@ -1,4 +1,4 @@
-#!/usr/bin/expect -f
+#!/usr/bin/expect -c
 set timeout 5
 set TARGET_HOSTIP [lindex $argv 0]
 set TARGET_USERNAME [lindex $argv 1]
